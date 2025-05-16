@@ -1,4 +1,4 @@
-import { EmailContent, GmailMessagePart } from "@/types/gmail";
+import { EmailContent, GmailMessagePart } from "../../../types/gmail";
 
 /**
  * Helper function to encode email headers containing non-ASCII characters

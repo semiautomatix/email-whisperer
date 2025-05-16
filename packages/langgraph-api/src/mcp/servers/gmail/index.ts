@@ -26,7 +26,7 @@ import {
   getOrCreateLabel,
   // GmailLabel,
 } from "./labels";
-import { GmailMessagePart } from "@/types/gmail";
+import { GmailMessagePart } from "../../../types/gmail";
 
 interface InitGmailMCPServerParams {
   accessToken: string;

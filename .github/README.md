@@ -9,6 +9,7 @@ This directory contains GitHub Actions workflow configurations for various autom
 Continuous Integration workflow that runs on pull requests and pushes to the main branch.
 
 **Checks performed:**
+
 - Code formatting validation (Prettier)
 - Code linting (ESLint)
 - Type checking (TypeScript)
@@ -28,6 +29,7 @@ When adding new workflows, please:
 ## Workflow Configuration
 
 The workflows are configured to use:
+
 - Node.js 22
 - PNPM 8.15.5
 - Caching for faster dependency installation

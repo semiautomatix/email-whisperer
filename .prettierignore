@@ -1,0 +1,10 @@
+# Ignore common build directories
+node_modules
+.git
+.next
+.turbo
+dist
+build
+coverage
+
+# Keep everything else

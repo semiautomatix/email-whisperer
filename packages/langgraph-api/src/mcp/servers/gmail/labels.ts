@@ -3,7 +3,7 @@
  * Provides comprehensive label management functionality
  */
 
-import { GmailLabel } from "@/types/gmail";
+import { GmailLabel } from "../../../types/gmail";
 
 /**
  * Creates a new Gmail label

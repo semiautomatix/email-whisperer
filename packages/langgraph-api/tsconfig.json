@@ -6,16 +6,13 @@
     "moduleResolution": "node",
     "outDir": "./dist",
     "rootDir": "./src",
-    "baseUrl": ".",
     "sourceMap": true,
     "noEmit": false,
     "declaration": true,
     "declarationMap": true,
     "esModuleInterop": true,
     "lib": ["ES2022"],
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "baseUrl": "./src"
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts"],
   "exclude": ["node_modules", "dist", "**/*.test.ts"]

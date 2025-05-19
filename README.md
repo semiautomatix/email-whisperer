@@ -69,7 +69,7 @@ Edit `.env.local` with your credentials:
 - Add Supabase URL and keys
 - Add Google OAuth credentials
 - Add NextAuth configuration
-- Add OpenAI API key (or other AI provider keys)
+- Add OpenAI API key
 
 5. **Run the development server**
 

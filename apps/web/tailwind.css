@@ -47,6 +47,51 @@
     --gray-400: 217 10% 65%; /* This is the approximate value for Tailwind's gray-400 */
 }
 
+/* Define dark mode CSS variables */
+.dark {
+    /* Base variables */
+    --primary: 180 66% 50%; /* Slightly lighter teal for dark mode */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 10% 20%; /* Darker secondary */
+    --secondary-foreground: 0 0% 95%; /* Lighter text for dark secondary */
+    --destructive: 0 70% 50%; /* Slightly desaturated destructive */
+    --destructive-foreground: 0 0% 100%;
+    --muted: 240 5% 15%; /* Darker muted */
+    --muted-foreground: 240 4% 55%; /* Lighter muted text */
+    --accent: 35 65% 75%; /* Slightly desaturated accent */
+    --accent-foreground: 0 0% 100%; /* White text on accent */
+    --border: 240 5% 25%; /* Darker border */
+    --input: 240 5% 25%; /* Darker input background */
+    --ring: 180 66% 50%; /* Match primary */
+    --background: 240 10% 10%; /* Very dark background */
+    --foreground: 0 0% 95%; /* Light foreground (text) */
+    --card: 240 10% 15%; /* Dark card background */
+    --card-foreground: 0 0% 95%; /* Light card text */
+    --popover: 240 10% 12%; /* Darker popover background */
+    --popover-foreground: 0 0% 95%; /* Light popover text */
+
+    /* Sidebar variables */
+    --sidebar-background: 240 10% 12%; /* Dark sidebar */
+    --sidebar-foreground: 0 0% 80%; /* Lighter sidebar text */
+    --sidebar-primary: 180 66% 50%; /* Match primary */
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 10% 25%; /* Darker sidebar accent */
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 240 5% 20%; /* Darker sidebar border */
+    --sidebar-ring: 180 66% 50%; /* Match primary */
+
+    /* Brand colors - adjust as needed for dark mode aesthetics */
+    --brand-teal: 180 66% 50%; /* Slightly lighter teal */
+    --brand-teal-light: 180 50% 75%; /* Lighter for dark mode */
+    --brand-teal-dark: 180 72% 40%; /* Maintain contrast */
+    --brand-sand: 35 50% 30%; /* Darker sand */
+    --brand-sand-light: 35 38% 40%; /* Darker sand-light */
+    --brand-sand-dark: 35 50% 20%; /* Even darker sand-dark */
+
+    /* Gray color scale */
+    --gray-400: 217 10% 50%; /* Darker gray for dark mode */
+}
+
 /* Configure theme variables */
 @theme {
     /* Colors */

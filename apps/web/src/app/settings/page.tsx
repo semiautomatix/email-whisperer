@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useTheme } from "next-themes";
 import { Button } from "@/app/components/ui/button";
 import Header from "@/app/components/Header";
 import { Switch } from "@/app/components/ui/switch";
@@ -41,15 +42,25 @@ import {
 
 const Settings = () => {
   const { user, logout, removeAccount } = useAuth();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
   // Settings state
   // const [enableNotifications, setEnableNotifications] = useState(false);
-  // const [darkMode, setDarkMode] = useState(false); // Dark mode removed - light theme only
   // const [useGPT4, setUseGPT4] = useState(false);
   const [autoSave, setAutoSave] = useState(true);
 
   // Use the chat hook
   const { deleteAllChats } = useChats();
+
+  // useEffect only runs on the client, so now we can safely show the UI
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null; // or a loading spinner
+  }
 
   return (
     <ProtectedRoute>
@@ -295,14 +306,15 @@ const Settings = () => {
                             htmlFor="dark-mode"
                             className="text-xs text-muted-foreground"
                           >
-                            Dark Mode (Coming Soon)
+                            Dark Mode
                           </Label>
                           <Switch
                             id="dark-mode"
-                            checked={false}
-                            onCheckedChange={() => {}}
-                            disabled
-                            className="opacity-50"
+                            checked={theme === "dark"}
+                            onCheckedChange={(checked) => {
+                              setTheme(checked ? "dark" : "light");
+                            }}
+                            className="data-[state=checked]:bg-brand-teal"
                           />
                         </div>
                       </CardContent>

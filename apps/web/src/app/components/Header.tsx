@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 import { Button } from "@/app/components/ui/button";
 import {
   Avatar,
   AvatarImage,
   AvatarFallback,
 } from "@/app/components/ui/avatar";
-import { Settings, LogOut, Menu, X, Mail } from "lucide-react";
+import { Settings, LogOut, Menu, X, Mail, Sun, Moon } from "lucide-react";
 import { Separator } from "@/app/components/ui/separator";
 import { cn } from "@/app/lib/utils";
 import { useIsMobile } from "@/app/hooks/use-mobile";
@@ -14,11 +15,69 @@ import { useAuth } from "../hooks/use-auth";
 
 const Header = ({ toggleSidebar }: { toggleSidebar?: () => void }) => {
   const { user, logout } = useAuth();
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   // const location = useLocation();
   const isMobile = useIsMobile();
   const [showMenu, setShowMenu] = useState(false);
 
   const toggleMenu = () => setShowMenu(!showMenu);
+
+  // useEffect only runs on the client, so now we can safely show the UI
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    // To prevent hydration mismatch, we don't render anything on the server.
+    // Or, you could render a placeholder/skeleton.
+    return (
+      <header className="bg-background border-b border-brand-sand-light sticky top-0 z-[1000]">
+        <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-4">
+            {toggleSidebar && isMobile && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleSidebar}
+                className="md:hidden"
+              >
+                <Menu size={20} />
+              </Button>
+            )}
+            <Link href="/dashboard" className="flex items-center gap-2">
+              <div className="w-10 h-10 rounded-full gradient-bg flex items-center justify-center shadow-lg">
+                <Mail className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <span className="font-display font-semibold text-lg">Email</span>
+                <span className="block text-xs -mt-1 text-muted-foreground">
+                  Whisperer
+                </span>
+              </div>
+            </Link>
+          </div>
+          {/* Placeholder for desktop buttons to maintain layout consistency during SSR */}
+          <div className="hidden md:flex items-center gap-2">
+            <div className="w-8 h-8"></div> {/* Placeholder for theme toggle */}
+            <div className="w-8 h-8"></div> {/* Placeholder for settings */}
+            <Separator orientation="vertical" className="h-6" />
+            <div className="flex items-center gap-3">
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-sans font-medium w-20 h-4 bg-gray-200 rounded animate-pulse"></p>
+                <p className="text-xs text-muted-foreground w-32 h-3 bg-gray-200 rounded mt-1 animate-pulse"></p>
+              </div>
+              <div className="h-8 w-8 rounded-full bg-gray-200 animate-pulse"></div>
+              <div className="w-8 h-8"></div> {/* Placeholder for logout */}
+            </div>
+          </div>
+          <div className="md:hidden">
+            <div className="w-8 h-8"></div> {/* Placeholder for mobile menu toggle */}
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className="bg-background border-b border-brand-sand-light sticky top-0 z-[1000]">
@@ -49,6 +108,14 @@ const Header = ({ toggleSidebar }: { toggleSidebar?: () => void }) => {
         </div>
 
         <div className="hidden md:flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+            aria-label="Toggle theme"
+          >
+            {resolvedTheme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+          </Button>
           <Link href="/settings">
             <Button variant="ghost" size="icon">
               <Settings size={20} />

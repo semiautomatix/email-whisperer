@@ -38,7 +38,7 @@ const MessageItem = memo(({ message }: MessageItemProps) => {
             </div>
           )
         ) : (
-          <div className="w-8 h-8 rounded-full flex items-center justify-center mt-1 flex-shrink-0 bg-brand-sand-light border border-brand-sand">
+          <div className="w-8 h-8 rounded-full flex items-center justify-center mt-1 flex-shrink-0 bg-brand-sand-light dark:bg-secondary border border-brand-sand dark:border-border">
             <Mail className="h-4 w-4 text-brand-teal" />
           </div>
         )}
@@ -48,16 +48,16 @@ const MessageItem = memo(({ message }: MessageItemProps) => {
             "chat-message relative rounded-2xl px-4 py-3 max-w-[85%] shadow-sm border",
             message.isUser
               ? "bg-brand-teal text-white border-brand-teal-dark rounded-tr-none"
-              : "bg-brand-sand-light border-brand-sand rounded-tl-none",
+              : "bg-brand-sand-light dark:bg-secondary border-brand-sand dark:border-border rounded-tl-none text-foreground",
           )}
         >
           <div className="flex flex-col">
-            <div className="mb-1 text-xs font-medium opacity-80 flex items-center gap-1">
+            <div className="mb-1 text-xs font-medium opacity-80 flex items-center gap-1 text-muted-foreground">
               {message.isUser ? "You" : "Email Whisperer"}
               <span className="inline-block mx-1 opacity-50">•</span>
               {formatTime(message.timestamp)}
             </div>
-            <div className="whitespace-pre-wrap">{message.content}</div>
+            <div className="whitespace-pre-wrap text-foreground">{message.content}</div>
           </div>
         </div>
       </div>

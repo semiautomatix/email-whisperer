@@ -169,14 +169,14 @@ const ChatInterface = ({
 
   return (
     <div className="flex flex-col h-full relative overflow-hidden">
-      <div className="absolute inset-0 bg-privacy-pattern opacity-10"></div>
-      <div className="absolute top-20 right-10 w-64 h-64 bg-brand-teal/10 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-10 left-10 w-80 h-80 bg-brand-sand/20 rounded-full blur-3xl"></div>
+      <div className="absolute inset-0 bg-privacy-pattern opacity-10 dark:opacity-5"></div>
+      <div className="absolute top-20 right-10 w-64 h-64 bg-brand-teal/10 dark:bg-brand-teal/5 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-10 left-10 w-80 h-80 bg-brand-sand/20 dark:bg-brand-sand/10 rounded-full blur-3xl"></div>
       {!activeChat ? (
         <div className="flex items-center justify-center h-full relative">
-          <div className="text-center max-w-md mx-auto p-8 bg-white/80 backdrop-blur-sm rounded-2xl border border-brand-sand-light shadow-mindful">
-            <div className="p-3 bg-brand-sand/30 rounded-full mx-auto mb-6 w-fit">
-              <div className="p-2 bg-brand-sand/50 rounded-full">
+          <div className="text-center max-w-md mx-auto p-8 bg-white/80 dark:bg-card/80 backdrop-blur-sm rounded-2xl border border-brand-sand-light dark:border-border shadow-mindful">
+            <div className="p-3 bg-brand-sand/30 dark:bg-brand-sand/20 rounded-full mx-auto mb-6 w-fit">
+              <div className="p-2 bg-brand-sand/50 dark:bg-brand-sand/30 rounded-full">
                 <Mail className="h-8 w-8 text-brand-teal" />
               </div>
             </div>
@@ -250,30 +250,30 @@ const ChatInterface = ({
 
 // Memoized sub-components to prevent unnecessary re-renders
 const EmptyChat = memo(() => (
-  <div className="text-center py-16 px-6 bg-white/80 backdrop-blur-sm rounded-2xl border border-brand-sand-light shadow-mindful mx-4 my-8">
-    <div className="p-3 bg-brand-sand/30 rounded-full mx-auto mb-6 w-fit">
-      <div className="p-2 bg-brand-sand/50 rounded-full">
+  <div className="text-center py-16 px-6 bg-white/80 dark:bg-card/80 backdrop-blur-sm rounded-2xl border border-brand-sand-light dark:border-border shadow-mindful mx-4 my-8">
+    <div className="p-3 bg-brand-sand/30 dark:bg-brand-sand/20 rounded-full mx-auto mb-6 w-fit">
+      <div className="p-2 bg-brand-sand/50 dark:bg-brand-sand/30 rounded-full">
         <Mail className="h-6 w-6 text-brand-teal" />
       </div>
     </div>
-    <h3 className="text-2xl font-display font-semibold mb-4">
+    <h3 className="text-2xl font-display font-semibold mb-4 text-foreground">
       Start the conversation
     </h3>
     <p className="text-muted-foreground max-w-sm mx-auto mb-6">
       Hello! I can help analyze your emails and suggest appropriate responses
       while keeping your data private. What can I help you with today?
     </p>
-    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-brand-sand text-brand-teal-dark">
+    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-brand-sand dark:bg-brand-sand/50 text-brand-teal-dark dark:text-brand-teal">
       <Mail className="h-3 w-3" /> Privacy-Focused Design
     </div>
   </div>
 ));
 
 const ThinkingIndicator = memo(() => (
-  <div className="flex items-center gap-2 my-4 py-2 px-4 bg-white/80 rounded-xl border border-brand-sand-light">
-    <div className="h-2 w-2 bg-brand-teal/60 rounded-full animate-pulse"></div>
-    <div className="h-2 w-2 bg-brand-teal/60 rounded-full animation-delay-200 animate-pulse"></div>
-    <div className="h-2 w-2 bg-brand-teal/60 rounded-full animation-delay-500 animate-pulse"></div>
+  <div className="flex items-center gap-2 my-4 py-2 px-4 bg-white/80 dark:bg-card/80 rounded-xl border border-brand-sand-light dark:border-border">
+    <div className="h-2 w-2 bg-brand-teal/60 dark:bg-brand-teal/80 rounded-full animate-pulse"></div>
+    <div className="h-2 w-2 bg-brand-teal/60 dark:bg-brand-teal/80 rounded-full animation-delay-200 animate-pulse"></div>
+    <div className="h-2 w-2 bg-brand-teal/60 dark:bg-brand-teal/80 rounded-full animation-delay-500 animate-pulse"></div>
     <span className="ml-2 text-sm font-medium text-muted-foreground">
       Email Whisperer is thinking...
     </span>
@@ -298,7 +298,7 @@ const ChatInput = memo(
     isProcessing: boolean;
     sendMessageRef: React.RefObject<() => void>;
   }) => (
-    <div className="border-t border-brand-sand-light p-4 bg-white/80 backdrop-blur-sm relative z-10">
+    <div className="border-t border-brand-sand-light dark:border-border p-4 bg-white/80 dark:bg-card/80 backdrop-blur-sm relative z-10">
       <div className="max-w-3xl mx-auto flex gap-2 items-end">
         <div className="relative flex-1">
           <Textarea
@@ -310,7 +310,7 @@ const ChatInput = memo(
               adjustTextareaHeight();
             }}
             onKeyDown={handleKeyDown}
-            className="resize-none min-h-[50px] max-h-[150px] pr-12 border-brand-sand rounded-xl focus:border-brand-teal focus:ring-brand-teal shadow-sm"
+            className="resize-none min-h-[50px] max-h-[150px] pr-12 border-brand-sand dark:border-border dark:bg-secondary rounded-xl focus:border-brand-teal focus:ring-brand-teal shadow-sm"
             disabled={isProcessing}
             aria-label="Message input"
             aria-multiline="true"

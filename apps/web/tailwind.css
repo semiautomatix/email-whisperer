@@ -50,7 +50,7 @@
 /* Define dark mode CSS variables */
 .dark {
     /* Base variables */
-    --primary: 180 66% 50%; /* Slightly lighter teal for dark mode */
+    --primary: 180 66% 30%; /* Darker teal for dark mode for better text contrast */
     --primary-foreground: 0 0% 100%;
     --secondary: 240 10% 20%; /* Darker secondary */
     --secondary-foreground: 0 0% 95%; /* Lighter text for dark secondary */
@@ -62,7 +62,7 @@
     --accent-foreground: 0 0% 100%; /* White text on accent */
     --border: 240 5% 25%; /* Darker border */
     --input: 240 5% 25%; /* Darker input background */
-    --ring: 180 66% 50%; /* Match primary */
+    --ring: var(--primary); /* Match primary */
     --background: 240 10% 10%; /* Very dark background */
     --foreground: 0 0% 95%; /* Light foreground (text) */
     --card: 240 10% 15%; /* Dark card background */
@@ -73,12 +73,12 @@
     /* Sidebar variables */
     --sidebar-background: 240 10% 12%; /* Dark sidebar */
     --sidebar-foreground: 0 0% 80%; /* Lighter sidebar text */
-    --sidebar-primary: 180 66% 50%; /* Match primary */
+    --sidebar-primary: var(--primary); /* Match primary */
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 10% 25%; /* Darker sidebar accent */
     --sidebar-accent-foreground: 0 0% 95%;
     --sidebar-border: 240 5% 20%; /* Darker sidebar border */
-    --sidebar-ring: 180 66% 50%; /* Match primary */
+    --sidebar-ring: var(--primary); /* Match primary */
 
     /* Brand colors - adjust as needed for dark mode aesthetics */
     --brand-teal: 180 66% 50%; /* Slightly lighter teal */

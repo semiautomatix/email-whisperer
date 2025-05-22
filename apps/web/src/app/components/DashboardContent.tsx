@@ -63,13 +63,13 @@ export default function DashboardContent() {
     <div className="flex flex-col h-screen relative">
       <Header toggleSidebar={toggleSidebar} />
 
-      <div className="flex flex-1 overflow-hidden w-full">
+      <div className="flex flex-1 overflow-hidden w-full bg-background">
         {isLoading ? (
           <div className="flex items-center justify-center w-full relative">
-            <div className="absolute inset-0 bg-privacy-pattern opacity-10"></div>
-            <div className="absolute top-20 right-10 w-64 h-64 bg-brand-teal/10 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-10 left-10 w-80 h-80 bg-brand-sand/20 rounded-full blur-3xl"></div>
-            <div className="text-center relative z-10 bg-white/80 backdrop-blur-sm p-8 rounded-2xl border border-brand-sand-light shadow-mindful">
+            <div className="absolute inset-0 bg-privacy-pattern opacity-10 dark:opacity-5"></div>
+            <div className="absolute top-20 right-10 w-64 h-64 bg-brand-teal/10 dark:bg-brand-teal/5 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-10 left-10 w-80 h-80 bg-brand-sand/20 dark:bg-brand-sand/10 rounded-full blur-3xl"></div>
+            <div className="text-center relative z-10 bg-white/80 dark:bg-card/80 backdrop-blur-sm p-8 rounded-2xl border border-brand-sand-light dark:border-border shadow-mindful">
               <LoadingIndicator size="large" />
               <p className="text-muted-foreground mt-4">
                 Loading your chats...

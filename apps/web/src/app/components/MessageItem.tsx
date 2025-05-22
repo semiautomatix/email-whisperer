@@ -48,7 +48,7 @@ const MessageItem = memo(({ message }: MessageItemProps) => {
             "chat-message relative rounded-2xl px-4 py-3 max-w-[85%] shadow-sm border",
             message.isUser
               ? "bg-brand-teal text-white border-brand-teal-dark rounded-tr-none"
-              : "bg-brand-sand-light dark:bg-secondary border-brand-sand dark:border-border rounded-tl-none text-foreground",
+              : "bg-brand-sand-light dark:bg-secondary border-brand-sand dark:border-border rounded-tl-none",
           )}
         >
           <div className="flex flex-col">
@@ -57,7 +57,7 @@ const MessageItem = memo(({ message }: MessageItemProps) => {
               <span className="inline-block mx-1 opacity-50">•</span>
               {formatTime(message.timestamp)}
             </div>
-            <div className="whitespace-pre-wrap text-foreground">{message.content}</div>
+            <div className="whitespace-pre-wrap text-secondary-foreground">{message.content}</div>
           </div>
         </div>
       </div>

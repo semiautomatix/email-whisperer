@@ -69,7 +69,7 @@ const Sidebar = ({
   return (
     <div
       className={cn(
-        "h-full border-r border-brand-sand-light bg-sidebar flex flex-col",
+        "h-full border-r border-brand-sand-light dark:border-border bg-card flex flex-col",
         className,
       )}
     >
@@ -175,7 +175,7 @@ const Sidebar = ({
         </div>
       </ScrollArea>
 
-      <div className="p-4 text-xs text-center text-muted-foreground border-t border-brand-sand-light">
+      <div className="p-4 text-xs text-center text-muted-foreground border-t border-brand-sand-light dark:border-border">
         <p>Email Whisperer</p>
         <p>All chat history stored locally</p>
       </div>

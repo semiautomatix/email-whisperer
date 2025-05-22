@@ -168,10 +168,7 @@ const Settings = () => {
                   <CardFooter className="px-8 pb-8 pt-0 justify-end gap-2">
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button
-                          variant="destructive"
-                          className="bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
-                        >
+                        <Button variant="destructive">
                           Delete Account
                         </Button>
                       </AlertDialogTrigger>

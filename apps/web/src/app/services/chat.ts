@@ -44,7 +44,7 @@ localforage.config({
 });
 
 export const ChatService = {
-  // Get all chat metadata for a specific user (without full message history)
+  // Get all chat histories for a specific user (including full message history)
   getAllChatHistories: async (userId: string): Promise<ChatHistory[]> => {
     if (!userId) {
       console.error("No userId provided to getAllChatHistories");

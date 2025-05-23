@@ -1,5 +1,7 @@
 # Email Whisperer
 
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/semiautomatix/email-whisperer?utm_source=oss&utm_medium=github&utm_campaign=semiautomatix%2Femail-whisperer&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
+
 ## Overview
 
 Email Whisperer is an AI-powered assistant for Gmail that helps users manage their email more efficiently. The application integrates with Gmail via Google OAuth to provide intelligent email organization, summary generation, and response suggestions.

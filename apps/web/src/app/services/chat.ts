@@ -15,7 +15,26 @@ export interface ChatHistory {
   updatedAt: number;
 }
 
-const STORAGE_KEY = "emailWhisperer_chatHistory";
+// For the index, we don't need the full message history
+export interface ChatMetadata {
+  id: string;
+  title: string;
+  createdAt: number;
+  updatedAt: number;
+  messageCount: number;
+  lastMessagePreview?: string;
+}
+
+const STORAGE_KEY = "emailWhisperer";
+
+// Helper functions to get user-specific storage keys
+const getChatIndexKey = (userId: string): string => {
+  return `${STORAGE_KEY}_${userId}_index`;
+};
+
+const getChatKey = (userId: string, chatId: string): string => {
+  return `${STORAGE_KEY}_${userId}_chat_${chatId}`;
+};
 
 // Initialize localforage
 localforage.config({
@@ -24,24 +43,61 @@ localforage.config({
   description: "Stores chat histories for Email Whisperer",
 });
 
-// LocalStorage fallback has been removed
-
 export const ChatService = {
-  // Get all chat histories
-  getAllChatHistories: async (): Promise<ChatHistory[]> => {
+  // Get all chat histories for a specific user (including full message history)
+  getAllChatHistories: async (userId: string): Promise<ChatHistory[]> => {
+    if (!userId) {
+      console.error("No userId provided to getAllChatHistories");
+      return [];
+    }
+
     try {
-      const data = await localforage.getItem<ChatHistory[]>(STORAGE_KEY);
-      return data || [];
+      // Get the metadata index
+      const chatIndex =
+        (await localforage.getItem<ChatMetadata[]>(getChatIndexKey(userId))) ||
+        [];
+
+      // Load all full chat histories
+      const chatPromises = chatIndex.map((metadata) =>
+        ChatService.getChatById(userId, metadata.id),
+      );
+
+      const chats = await Promise.all(chatPromises);
+      // Filter out any undefined chats (in case loading failed for some)
+      return chats.filter((chat): chat is ChatHistory => chat !== undefined);
     } catch (error) {
       console.error("Error fetching chat histories from localForage:", error);
       return [];
     }
   },
 
-  // Create new chat history
-  createChatHistory: async (): Promise<ChatHistory> => {
+  // Get metadata only (for showing chat list without loading all messages)
+  getChatMetadata: async (userId: string): Promise<ChatMetadata[]> => {
+    if (!userId) {
+      console.error("No userId provided to getChatMetadata");
+      return [];
+    }
+
+    try {
+      return (
+        (await localforage.getItem<ChatMetadata[]>(getChatIndexKey(userId))) ||
+        []
+      );
+    } catch (error) {
+      console.error("Error fetching chat metadata from localForage:", error);
+      return [];
+    }
+  },
+
+  // Create new chat history for a specific user
+  createChatHistory: async (userId: string): Promise<ChatHistory> => {
+    if (!userId) {
+      throw new Error("No userId provided to createChatHistory");
+    }
+
+    const chatId = `chat_${Date.now()}`;
     const newChat: ChatHistory = {
-      id: `chat_${Date.now()}`,
+      id: chatId,
       title: `New Chat ${new Date().toLocaleString()}`,
       messages: [],
       createdAt: Date.now(),
@@ -49,10 +105,25 @@ export const ChatService = {
     };
 
     try {
-      const existingChats = await ChatService.getAllChatHistories();
-      const updatedChats = [newChat, ...existingChats];
+      // Create chat metadata for the index
+      const newChatMetadata: ChatMetadata = {
+        id: chatId,
+        title: newChat.title,
+        createdAt: newChat.createdAt,
+        updatedAt: newChat.updatedAt,
+        messageCount: 0,
+      };
 
-      await localforage.setItem(STORAGE_KEY, updatedChats);
+      // Get existing metadata index
+      const existingMetadata = await ChatService.getChatMetadata(userId);
+      const updatedMetadata = [newChatMetadata, ...existingMetadata];
+
+      // Save both the metadata index and the new chat
+      await Promise.all([
+        localforage.setItem(getChatIndexKey(userId), updatedMetadata),
+        localforage.setItem(getChatKey(userId, chatId), newChat),
+      ]);
+
       return newChat;
     } catch (error) {
       console.error("Error creating chat history in localForage:", error);
@@ -60,28 +131,43 @@ export const ChatService = {
     }
   },
 
-  // Get chat by ID
-  getChatById: async (chatId: string): Promise<ChatHistory | undefined> => {
+  // Get chat by ID for a specific user
+  getChatById: async (
+    userId: string,
+    chatId: string,
+  ): Promise<ChatHistory | undefined> => {
+    if (!userId) {
+      console.error("No userId provided to getChatById");
+      return undefined;
+    }
+
     try {
-      const chats = await ChatService.getAllChatHistories();
-      return chats.find((chat) => chat.id === chatId);
+      return (
+        (await localforage.getItem<ChatHistory>(getChatKey(userId, chatId))) ??
+        undefined
+      );
     } catch (error) {
       console.error(`Error fetching chat with ID ${chatId}:`, error);
       return undefined;
     }
   },
 
-  // Add message to chat
+  // Add message to chat for a specific user
   addMessageToChat: async (
+    userId: string,
     chatId: string,
     content: string,
     isUser: boolean,
   ): Promise<ChatHistory | undefined> => {
-    try {
-      const chats = await ChatService.getAllChatHistories();
-      const chatIndex = chats.findIndex((chat) => chat.id === chatId);
+    if (!userId) {
+      throw new Error("No userId provided to addMessageToChat");
+    }
 
-      if (chatIndex === -1) {
+    try {
+      // Get the existing chat
+      const chat = await ChatService.getChatById(userId, chatId);
+
+      if (!chat) {
         throw new Error(`Chat with ID ${chatId} not found`);
       }
 
@@ -92,61 +178,104 @@ export const ChatService = {
         timestamp: Date.now(),
       };
 
-      if (chats?.length && chats[chatIndex]) {
-        const updatedChat = {
-          ...chats[chatIndex],
-          messages: [...chats[chatIndex].messages, newMessage],
-          updatedAt: Date.now(),
-        };
+      // Update the chat with the new message
+      const updatedChat: ChatHistory = {
+        ...chat,
+        messages: [...chat.messages, newMessage],
+        updatedAt: Date.now(),
+      };
 
-        // Update the title based on first user message if it's still the default title
-        if (
-          isUser &&
-          updatedChat.title?.startsWith("New Chat") &&
-          updatedChat.messages.filter((m) => m.isUser).length === 1
-        ) {
-          updatedChat.title =
-            content.slice(0, 30) + (content.length > 30 ? "..." : "");
-        }
-
-        chats[chatIndex] = updatedChat;
-
-        try {
-          await localforage.setItem(STORAGE_KEY, chats);
-        } catch (storageError) {
-          console.error(`Error saving to localForage:`, storageError);
-          throw storageError;
-        }
-
-        return updatedChat;
+      // Update the title based on first user message if it's still the default title
+      if (
+        isUser &&
+        updatedChat.title?.startsWith("New Chat") &&
+        updatedChat.messages.filter((m) => m.isUser).length === 1
+      ) {
+        updatedChat.title =
+          content.slice(0, 30) + (content.length > 30 ? "..." : "");
       }
+
+      // Get the metadata index to update
+      // Update the metadata for this chat
+      const metadataIndex = await ChatService.getChatMetadata(userId);
+      const metadataItemIndex = metadataIndex.findIndex(
+        (item) => item.id === chatId,
+      );
+
+      if (metadataItemIndex !== -1) {
+        // Update the metadata for this chat
+        const updatedMetadata = [...metadataIndex];
+        const updatedMetadataItem: ChatMetadata = {
+          id: chatId,
+          title: updatedChat.title,
+          createdAt: updatedChat.createdAt,
+          updatedAt: updatedChat.updatedAt,
+          messageCount: updatedChat.messages.length,
+          lastMessagePreview:
+            content.slice(0, 50) + (content.length > 50 ? "..." : ""),
+        };
+        updatedMetadata[metadataItemIndex] = updatedMetadataItem;
+
+        // Save both the updated chat and metadata index
+        await Promise.all([
+          localforage.setItem(getChatKey(userId, chatId), updatedChat),
+          localforage.setItem(getChatIndexKey(userId), updatedMetadata),
+        ]);
+      } else {
+        // Just save the chat if metadata is not found
+        await localforage.setItem(getChatKey(userId, chatId), updatedChat);
+      }
+
+      return updatedChat;
     } catch (error) {
       console.error(`Error adding message to chat ${chatId}:`, error);
       throw error;
     }
   },
 
-  // Delete chat history
-  deleteChatHistory: async (chatId: string): Promise<void> => {
-    try {
-      const chats = await ChatService.getAllChatHistories();
-      const filteredChats = chats.filter((chat) => chat.id !== chatId);
+  // Delete chat history for a specific user
+  deleteChatHistory: async (userId: string, chatId: string): Promise<void> => {
+    if (!userId) {
+      throw new Error("No userId provided to deleteChatHistory");
+    }
 
-      try {
-        await localforage.setItem(STORAGE_KEY, filteredChats);
-      } catch (storageError) {
-        console.error(`Error saving to localForage:`, storageError);
-        throw storageError;
-      }
+    try {
+      // Get the metadata index
+      const metadataIndex = await ChatService.getChatMetadata(userId);
+      const updatedMetadata = metadataIndex.filter(
+        (item) => item.id !== chatId,
+      );
+
+      // Delete the chat and update the index
+      await Promise.all([
+        localforage.removeItem(getChatKey(userId, chatId)),
+        localforage.setItem(getChatIndexKey(userId), updatedMetadata),
+      ]);
     } catch (error) {
       console.error(`Error deleting chat ${chatId}:`, error);
       throw error;
     }
   },
 
-  deleteAllChatHistories: async (): Promise<void> => {
+  deleteAllChatHistories: async (userId: string): Promise<void> => {
+    if (!userId) {
+      throw new Error("No userId provided to deleteAllChatHistories");
+    }
+
     try {
-      await localforage.removeItem(STORAGE_KEY);
+      // Get all chat metadata to find all chat keys
+      const metadataIndex = await ChatService.getChatMetadata(userId);
+
+      // Create an array of promises to remove each chat
+      const deletionPromises = metadataIndex.map((metadata) =>
+        localforage.removeItem(getChatKey(userId, metadata.id)),
+      );
+
+      // Add a promise to clear the metadata index
+      deletionPromises.push(localforage.removeItem(getChatIndexKey(userId)));
+
+      // Execute all deletions in parallel
+      await Promise.all(deletionPromises);
     } catch (error) {
       console.error(`Error deleting all chats:`, error);
       throw error;

@@ -82,9 +82,6 @@ const ChatInterface = ({
     setIsProcessing(true);
 
     try {
-      if (!user?.id) {
-        throw new Error("User not logged in");
-      }
       
       // Add user message
       await ChatService.addMessageToChat(user.id, activeChat.id, message, true);

@@ -1,3 +1,5 @@
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/semiautomatix/email-whisperer?utm_source=oss&utm_medium=github&utm_campaign=semiautomatix%2Femail-whisperer&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
+
 # Email Whisperer
 
 ## Overview

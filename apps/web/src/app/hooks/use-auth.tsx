@@ -74,7 +74,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // If we get here, the mutation succeeded (no error was thrown)
 
       // Delete all chat histories
-      await ChatService.deleteAllChatHistories();
+      await ChatService.deleteAllChatHistories(user.id);
 
       // Sign out the user
       await signOut({ callbackUrl: "/" });

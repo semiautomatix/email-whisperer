@@ -9,6 +9,7 @@ import { ChatHistory, ChatService } from "@/app/services/chat";
 import { trpc } from "@/app/trpc/utils";
 import { trimMessagesToTokenLimit } from "@/utils/tokenCounter";
 import { debounce } from "lodash";
+import { useAuth } from "@/app/hooks/use-auth";
 
 interface ChatInterfaceProps {
   activeChat: ChatHistory | null;
@@ -21,6 +22,7 @@ const ChatInterface = ({
   onChatUpdate,
   createNewChat,
 }: ChatInterfaceProps) => {
+  const { user } = useAuth();
   const [message, setMessage] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
@@ -75,18 +77,22 @@ const ChatInterface = ({
 
   // Store function reference in a ref to use with debounce
   const handleSendMessage = useCallback(async () => {
-    if (!message.trim() || !activeChat || isProcessing) return;
+    if (!message.trim() || !activeChat || isProcessing || !user?.id) return;
 
     setIsProcessing(true);
 
     try {
+      if (!user?.id) {
+        throw new Error("User not logged in");
+      }
+      
       // Add user message
-      await ChatService.addMessageToChat(activeChat.id, message, true);
+      await ChatService.addMessageToChat(user.id, activeChat.id, message, true);
       setMessage("");
       onChatUpdate();
 
       // Get all messages from the current chat for context
-      const chatWithHistory = await ChatService.getChatById(activeChat.id);
+      const chatWithHistory = await ChatService.getChatById(user.id, activeChat.id);
 
       // Convert and trim messages to fit token limit
       const contextualizedHistory = await trimMessagesToTokenLimit(
@@ -101,8 +107,9 @@ const ChatInterface = ({
         contextMessages: contextualizedHistory,
       });
 
-      if (result?.response) {
+      if (result?.response && user?.id) {
         await ChatService.addMessageToChat(
+          user.id,
           activeChat.id,
           (result?.response ?? "").toString(),
           false,
@@ -112,12 +119,15 @@ const ChatInterface = ({
     } catch (error) {
       console.error("Error in chat flow:", error);
       try {
-        await ChatService.addMessageToChat(
-          activeChat.id,
-          "Sorry, I encountered an error. Please try again.",
-          false,
-        );
-        onChatUpdate();
+        if (user?.id) {
+          await ChatService.addMessageToChat(
+            user.id,
+            activeChat.id,
+            "Sorry, I encountered an error. Please try again.",
+            false,
+          );
+          onChatUpdate();
+        }
       } catch (e) {
         console.error("Error adding error message to chat:", e);
       }

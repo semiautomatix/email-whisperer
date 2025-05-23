@@ -52,7 +52,10 @@ export const useChats = () => {
       if (!activeChatId || !user?.id) return;
 
       try {
-        const selectedChat = await ChatService.getChatById(user.id, activeChatId);
+        const selectedChat = await ChatService.getChatById(
+          user.id,
+          activeChatId,
+        );
         setActiveChat(selectedChat || null);
       } catch (error) {
         console.error(`Error selecting chat ${activeChatId}:`, error);
@@ -67,7 +70,7 @@ export const useChats = () => {
     if (!user?.id) {
       throw new Error("Cannot create chat: No user is logged in");
     }
-    
+
     try {
       const newChat = await ChatService.createChatHistory(user.id);
       setChatHistories([newChat, ...chatHistories]);
@@ -83,7 +86,7 @@ export const useChats = () => {
   // Select a chat by ID
   const selectChat = async (chatId: string) => {
     if (!user?.id) return;
-    
+
     setActiveChatId(chatId);
     try {
       const selectedChat = await ChatService.getChatById(user.id, chatId);
@@ -98,7 +101,7 @@ export const useChats = () => {
     if (!user?.id) {
       throw new Error("Cannot delete chat: No user is logged in");
     }
-    
+
     try {
       await ChatService.deleteChatHistory(user.id, chatId);
       const updatedHistories = chatHistories.filter(
@@ -129,7 +132,7 @@ export const useChats = () => {
     if (!user?.id) {
       throw new Error("Cannot delete all chats: No user is logged in");
     }
-    
+
     try {
       await ChatService.deleteAllChatHistories(user.id);
       setChatHistories([]);
@@ -144,13 +147,16 @@ export const useChats = () => {
   // Update chats after changes
   const refreshChats = async () => {
     if (!user?.id) return;
-    
+
     try {
       const histories = await ChatService.getAllChatHistories(user.id);
       setChatHistories(histories);
 
       if (activeChatId) {
-        const updatedChat = await ChatService.getChatById(user.id, activeChatId);
+        const updatedChat = await ChatService.getChatById(
+          user.id,
+          activeChatId,
+        );
         setActiveChat(updatedChat || null);
       }
     } catch (error) {

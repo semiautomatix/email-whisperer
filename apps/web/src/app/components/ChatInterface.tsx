@@ -89,7 +89,10 @@ const ChatInterface = ({
       onChatUpdate();
 
       // Get all messages from the current chat for context
-      const chatWithHistory = await ChatService.getChatById(user.id, activeChat.id);
+      const chatWithHistory = await ChatService.getChatById(
+        user.id,
+        activeChat.id,
+      );
 
       // Convert and trim messages to fit token limit
       const contextualizedHistory = await trimMessagesToTokenLimit(

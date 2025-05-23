@@ -82,7 +82,6 @@ const ChatInterface = ({
     setIsProcessing(true);
 
     try {
-      
       // Add user message
       await ChatService.addMessageToChat(user.id, activeChat.id, message, true);
       setMessage("");

@@ -1,8 +1,7 @@
 // A LangGraph-compatible MCP tool implementation of the Gmail agent
-import assert from "node:assert";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { google } from "googleapis";
-import { OAuth2Client, Credentials } from "google-auth-library";
+import { OAuth2Client } from "google-auth-library";
 import {
   SendEmailSchema,
   ReadEmailSchema,
@@ -28,32 +27,7 @@ import {
 } from "./labels";
 import { GmailMessagePart } from "../../../types/gmail";
 
-interface InitGmailMCPServerParams {
-  accessToken: string;
-  refreshToken: string;
-  expiresAt: number;
-}
-
-export const initGmailMCPServer = async ({
-  accessToken,
-  refreshToken,
-  expiresAt,
-}: InitGmailMCPServerParams) => {
-  assert(process.env.GOOGLE_CLIENT_ID, "GOOGLE_CLIENT_ID is not set");
-  assert(process.env.GOOGLE_CLIENT_SECRET, "GOOGLE_CLIENT_SECRET is not set");
-
-  const oauth2Client = new OAuth2Client({
-    clientId: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  });
-
-  const credentials: Credentials = {
-    access_token: accessToken,
-    refresh_token: refreshToken,
-    expiry_date: expiresAt,
-  };
-
-  oauth2Client.setCredentials(credentials);
+export const initGmailMCPServer = async (oauth2Client: OAuth2Client) => {
   const gmail = google.gmail({ version: "v1", auth: oauth2Client });
 
   const GmailMCPServer = new McpServer({

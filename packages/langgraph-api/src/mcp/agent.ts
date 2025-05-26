@@ -4,11 +4,13 @@ import { Database as NextAuthDatabase } from "../types/supabase/next_auth";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { ChatOpenAI } from "@langchain/openai";
 import { SystemMessage } from "@langchain/core/messages";
+import { getOAuth2Client } from "../utils/oauthClient";
 import { initGmailMCPServer } from "./servers/gmail";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { loadMcpTools } from "@langchain/mcp-adapters";
 import { registry as circuitRegistry } from "../utils/circuitBreaker";
+import { OAuth2Client } from "google-auth-library";
 
 const AGENT_SYSTEM_TEMPLATE = `You are a personal assistant named Email Whisperer.
 You are a helpful assistant that can answer questions and help with tasks about Gmail.
@@ -80,14 +82,6 @@ const getCredentials = async (userId: string, provider = "google") => {
     assert(accessToken, "Access token not found");
     assert(refreshToken, "Refresh token not found");
 
-    // if token has expired, use refresh to get another
-    if (expiresAt && expiresAt < Date.now()) {
-      console.warn(
-        "Token has expired, but refresh not implemented in getCredentials",
-      );
-      // TODO: Implement refresh logic here or use the refreshAccessToken function
-    }
-
     return {
       accessToken,
       refreshToken,
@@ -140,16 +134,77 @@ export const assistant = async ({
   try {
     console.debug("Loading MCP tools");
 
+    assert(process.env.GOOGLE_CLIENT_ID, "GOOGLE_CLIENT_ID is not set");
+    assert(process.env.GOOGLE_CLIENT_SECRET, "GOOGLE_CLIENT_SECRET is not set");
+
     // Create a pair of linked transports: one for the server, one for the client
     const [clientTransport, serverTransport] =
       InMemoryTransport.createLinkedPair();
 
+    const provider = "google";
+
     // Get credentials with circuit breaker protection (already implemented in the function)
-    const credentials = await getCredentials(userId);
+    const credentials = await getCredentials(userId, provider);
+
+    // Get OAuth2Client instance for this user with automatic token refresh
+    const oauth2Client = getOAuth2Client(userId, async (tokens) => {
+      // This callback is called when tokens are automatically refreshed
+      // Update the database with new tokens
+      console.log("Updating database with refreshed tokens");
+
+      // Only update the database if we have new tokens
+      if (tokens.access_token || tokens.refresh_token) {
+        const newExpiresAt = tokens.expiry_date
+          ? Math.floor(tokens.expiry_date / 1000)
+          : null;
+
+        const { error } = await supabaseAdminClient
+          .schema("next_auth")
+          .from("accounts")
+          .update({
+            access_token: tokens.access_token || credentials.accessToken,
+            expires_at: newExpiresAt,
+            refresh_token: tokens.refresh_token || credentials.refreshToken,
+          })
+          .eq("userId", userId)
+          .eq("provider", provider);
+
+        if (error) {
+          console.error("Failed to update tokens in database:", error);
+        }
+      }
+    });
+
+    oauth2Client.setCredentials({
+      access_token: credentials.accessToken,
+      refresh_token: credentials.refreshToken,
+      expiry_date: Number(credentials.expiresAt) * 1000, // Convert to milliseconds if needed
+    });
+
+    // Check if token is expired and needs refreshing
+    if (Number(credentials.expiresAt) * 1000 < Date.now()) {
+      try {
+        // Set timeout for token refresh
+        const refreshPromise = oauth2Client.getAccessToken();
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(
+            () => reject(new Error("Token refresh timed out after 10s")),
+            10000,
+          ),
+        );
+
+        // Race between refresh and timeout
+        await Promise.race([refreshPromise, timeoutPromise]);
+        console.log("Token refresh successful");
+      } catch (error) {
+        console.error("Token refresh failed:", error);
+        throw error;
+      }
+    }
 
     // Protect Gmail server connection with circuit breaker
     const initGmailServerProtected = gmailCircuit.wrap(async () => {
-      const GmailMCPServer = await initGmailMCPServer(credentials);
+      const GmailMCPServer = await initGmailMCPServer(oauth2Client);
       await GmailMCPServer.connect(serverTransport);
       return GmailMCPServer;
     });
